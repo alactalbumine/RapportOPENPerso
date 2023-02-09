@@ -1,0 +1,136 @@
+---
+title: "SynthèseIAEtienneOPEN"
+author: "Etienne"
+date: "2023-02-03"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Table des matières
+
+1\. Présentation du modèle
+
+2.  Histoire et introduction
+
+3.  Création
+
+4.  Matériel et puissance nécessaire
+
+5.  Fonctionnement
+
+6.  Entrainement du modèle
+
+7.  Personnalisation
+
+2\. Exemple de prompts et modèles de la communauté
+
+1.  Prompts de mes générations
+
+3\. Conclusion
+
+4\. Bibliographie
+
+### Différents exemple de mes générations par Stable Diffusion seront insérées dans le rapport
+
+# [**I. Présentation du modèle**]{.underline}
+
+```{bash, eval=FALSE}
+@echo off
+
+set PYTHON=
+set GIT=
+set VENV_DIR=
+set COMMANDLINE_ARGS= --precision full --no-half --medvram --xformers --opt-split-attention 
+set OPTIMIZED_TURBO=true
+git pull
+call webui.bat
+
+```
+
+Avant tout j'ai voulu inclure des chunks de scripts en python car tout le modèle comme l'interface utilisateur web est codé en python mais le plus petit script faisait 230 lignes. C'est pour cela que j'ai décidé de mettre ci-dessus le bash qui sert à lancer et à configurer l'application sur PC.
+
+## 1) Histoire et introduction
+
+Stable Diffusion est un outil d'intelligence artificielle générative. Stable Diffusion est formée d'un ou plusieurs modèles entrainés par deep learning. En effet il permet de générer des images à partir de zéro en utilisant un texte qui décrit les éléments à inclure ou à exclure du résultat de sortie. Il peut également redessiner une image existante pour y inclure de nouveaux éléments décrits par un texte. De plus, en utilisant une interface appropriée comme l'interface navigateur (Web UI) proposé par AUTOMATIC 1111 sur github. (AUTOMATIC1111, 2023). Le modèle peut également altérer une image existante de manière partielle en utilisant un processus appelé « inpainting » et « outpainting ».
+
+![Cette personne n'existe pas](images/00097.png){width="50%"}
+
+## 2) Création
+
+Stable Diffusion est un modèle de diffusion latente publié en 2022. Il a été développé par le groupe CompVis à l'Université Ludwig-Maximilians de Munich en collaboration avec stability AI, Runway et avec le soutien de EleutherAI et LAION. En octobre 2022, stability AI a levé 101 millions de dollars au cours d'un tour de table financier dirigé par Lightspeed Venture Partners et Coatue Management. ([Auteur ?] Stable Diffusion, 2023)
+
+![Paysage de montagne dans le style de Monet](images/00106.png){width="50%"}
+
+## 3) Matériel et puissance nécessaire
+
+Le code et les poids du modèle Stable Diffusion sont disponibles publiquement. Pour une utilisation optimale, il est recommandé d'avoir une carte graphique équipée d'au moins 8 Go de mémoire vidéo VRAM. Pour une utilisation optimale, Stable Diffusion doit être utilisé avec 10 GB ou plus de VRAM. Cependant, pour les utilisateurs qui disposent de moins de VRAM, il est possible de charger les poids en précision float16 au lieu de float32 pour un compromis en termes de performance en échange d'une utilisation moindre de VRAM. Cela le différencie des modèles de conversion de texte en image propriétaires antérieurs tels que DALL-E et Midjourney qui étaient uniquement accessibles via des services en ligne payants.
+
+![Paysage d'un village de pêcheurs en Italie](images/00110.png){width="50%"}
+
+## 4) Fonctionnement
+
+Le modèle Stable Diffusion utilise une variante de modèle de diffusion appelée modèle de diffusion latent (LDM). Les modèles de diffusion latent ont été introduits en 2015 et ont été développé avec l'objectif de supprimer les applications successives de bruit gaussien sur les images d'entraînement, ce qui peut être considéré comme une séquence d'auto-encodeurs de débruitage. Stable Diffusion est un modèle de traitement d'images qui est formé pour produire des images basées sur un texte donné. Il est composé de plusieurs parties, mais nous allons nous concentrer sur l'autoencodeur variationnel (VAE). L'encodeur VAE compresse l'image originale, qui est en format pixels, en une représentation plus petite appelée espace latent. Cette représentation est censée capturer le sens sémantique fondamental de l'image. Ensuite, un bruit gaussien est ajouté de manière itérative à la représentation latente comprimée lors du processus de diffusion. Finalement, le décodeur VAE génère l'image finale en convertissant la représentation latente en format pixels. L'étape de débruitage peut être adaptée en fonction d'un texte, d'une image ou d'autres types de données. Pour la conditionnalité basée sur le texte, un encodeur de texte pré-entraîné appelé CLIP ViT-L/14 est utilisé pour transformer les prompts de texte en un format utilisable pour le modèle. Les chercheurs soulignent que les modèles de diffusion latent (LDM) ont un avantage par rapport à d'autres modèles, car ils sont plus rapides pour la formation et la génération d'image. Stable Diffusion a été formé en utilisant des paires d'images et de textes provenant de LAION-5B, un ensemble de données publiques disponibles sur Internet. Cet ensemble de données comporte 5 milliards de paires d'images et de textes classées en fonction de la langue, filtrées en ensembles de données séparées en fonction de la résolution, de la probabilité prédite de contenir un filigrane et d'un score "esthétique" (c'est-à-dire la qualité visuelle subjective). Le modèle Stable Diffusion a été formé en utilisant trois sous-ensembles de LAION-5B. Une analyse des données d'entraînement a montré que 47% des images provenaient de 100 sites différents, avec Pinterest représentant 8,5% et d'autres sites comme WordPress, Blogspot, Flickr, DeviantArt et Wikimedia Commons. (CreativeML Open RAIL-M, 2022)
+
+![Un jeune homme en costume formel qui n'existe pas](images/00031.png){width="50%"}
+
+## 5) Entrainement du modèle
+
+Le modèle a été formé à l'aide de 256 GPU Nvidia A100 sur Amazon Web Services pour un total de 150 000 heures de GPU, coûtant 600 000 dollars. Le modèle Stable Diffusion a des problèmes de dégradation et d'inexactitudes dans certaines situations. Les premières versions du modèle ont été formées sur un ensemble de données qui comprend des images de résolution 512 × 512, ce qui signifie que la qualité des images générées dégrade sensiblement lorsque les spécifications de l'utilisateur dévient de sa résolution "attendue" de 512 × 512. Plus tard, la version 2.0 du modèle Stable Diffusion a introduit la capacité à générer nativement des images à une résolution de 768 × 768. Un autre défi est de générer des membres humains en raison de la mauvaise qualité des données des membres dans la base de données LAION. Malgré ses utilisations diverses, Stable Diffusion peut poser des défis pour les développeurs individuels qui souhaitent le personnaliser pour de nouveaux cas d'utilisation. Des données supplémentaires et une formation supplémentaire sont nécessaires pour améliorer le modèle pour de nouveaux cas d'utilisation. Cependant, la qualité des nouvelles données est cruciale pour garantir les performances du modèle. Il est également important de noter que Stable Diffusion peut présenter des biais algorithmiques en raison de sa formation principalement à partir d'images avec des descriptions en anglais. Les images générées peuvent renforcer les biais sociaux et être d'une perspective occidentale en raison de la carence en données provenant d'autres communautés et cultures. Les performances du modèle peuvent également varier en fonction de la langue utilisée pour les invitations, avec des résultats plus précis pour les invitations en anglais par rapport à d'autres langues.
+
+## 6) Personnalisation
+
+Il existe différentes manières pour les utilisateurs de personnaliser le modèle Stable Diffusion pour que les images générées soient plus adaptées à leur utilisation. Les méthodes incluent : Créer un "embedding" à partir d'images fournies par l'utilisateur. Cela permet au modèle de générer des images similaires à chaque fois que le nom de l'embedding est utilisé dans une demande de génération. Utiliser un "Hypernetwork" qui est un petit réseau de neurones pré-entraîné qui est utilisé à divers points dans un plus grand réseau de neurones. Cela permet au modèle Stable Diffusion d'imiter le style artistique d'un artiste en particulier, même s'il n'est pas reconnu par le modèle original. Utiliser DreamBooth, un modèle de génération de deep learning développé par Google Research et Boston University. Il permet de personnaliser le modèle Stable Diffusion pour qu'il génère des images précises sur un sujet en particulier
+
+# [2. Exemple de prompts et modèles de la communauté]{.underline}
+
+## 1) Prompts de mes générations
+
+Souvent sur les forums par exemple reddit ,(WorldsInvade, 2023) la communauté se partage des prompts contenant toutes les caractéristiques de leur génération. Cela comprend : le prompts positif (ce que l'on demande à afficher), le prompts négatif (ce qu'on ne veut pas sur les générations), le nombre d'étapes de rendu, le sample qui est l'algorithme de débruitage, le CFG scale ( à quel point notre prompt doit être respecté et la liberté du modèle), la seed (le bruit initial à partir duquel la génération est faite), la taille en pixel, le modèle utilisé et enfin des extras comme l'upscaler utilisé. (Lykon, 2023)
+
+![](images/00095.png){width="50%"}
+
+**paramètres de cette génération :**
+
+modelshoot style, (extremely detailed CG unity 8k wallpaper), full shot body photo of the most beautiful artwork in the world, Joseph advise the Pharoah as they overlook the majestic, pristine Egypt, arabic people, tanned skin, dynamic lighting , biblical stories, Bronce age, Epic photorealistic painting by Ed Blinkey, Atey Ghailan, by Jeremy Mann, Greg Manchess, Antonio Moro, trending on ArtStation, trending on CGSociety, Intricate, High Detail, Sharp focus, dramatic, photorealistic painting art by midjourney and greg rutkowski\
+Negative prompt: ((disfigured)), ((bad art)), ((deformed)),((extra limbs)), ((extra barrel)),((close up)),((b&w)), weird colors, blurry, (((duplicate))), ((morbid)), ((mutilated)), [out of frame], extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck))), (((tripod))), (((tube))), ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, canvas frame, watermark, signature\
+Steps: 34, Sampler: Euler a, CFG scale: 9, Seed: 2136839317, Size: 576x448, Model hash: 2700c435
+
+**extras**
+
+Upscale: 4, visibility: 1.0, model:R-ESRGAN 4x+ Anime6B\
+Upscale: 4, visibility: 1, model:R-ESRGAN 4x+ Anime6B
+
+![](images/00016.png){width="50%"}
+
+**paramètres de cette génération :**
+
+modelshoot style, (extremely detailed CG unity 8k wallpaper), full shot body photo of the most beautiful artwork in the world, Joseph advise the Pharoah as they overlook the majestic, pristine Egypt, arabic people, tanned skin, dynamic lighting , biblical stories, Bronce age, Epic photorealistic painting by Ed Blinkey, Atey Ghailan, by Jeremy Mann, Greg Manchess, Antonio Moro, trending on ArtStation, trending on CGSociety, Intricate, High Detail, Sharp focus, dramatic, photorealistic painting art by midjourney and greg rutkowski, egypte\
+Negative prompt: ((disfigured)), ((bad art)), ((deformed)),((extra limbs)), ((extra barrel)),((close up)),((b&w)), weird colors, blurry, (((duplicate))), ((morbid)), ((mutilated)), [out of frame], extra fingers, mutated hands, ((poorly drawn hands)), ((poorly drawn face)), (((mutation))), (((deformed))), ((ugly)), blurry, ((bad anatomy)), (((bad proportions))), ((extra limbs)), cloned face, (((disfigured))), out of frame, ugly, extra limbs, (bad anatomy), gross proportions, (malformed limbs), ((missing arms)), ((missing legs)), (((extra arms))), (((extra legs))), mutated hands, (fused fingers), (too many fingers), (((long neck))), (((tripod))), (((tube))), ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, body out of frame, blurry, bad art, bad anatomy, canvas frame\
+Steps: 35, Sampler: DPM++ 2M Karras, CFG scale: 7.5, Seed: 15797437, Size: 576x448, Model hash: 61a37adf76, Denoising strength: 0.7, Hires upscale: 2, Hires upscaler: Latent
+
+**postprocessing**
+
+Postprocess upscale by: 4, Postprocess upscaler: ESRGAN_4x
+
+**extras**
+
+Postprocess upscale by: 4, Postprocess upscaler: ESRGAN_4x
+
+# [III. Conclusion]{.underline}
+
+Le modèle Stable Diffusion est un outil puissant d'intelligence artificielle générative qui offre des possibilités uniques en matière de génération d'images. Ce rapport personnel vise à présenter ce modèle et à encourager les lecteurs à en savoir plus sur ses fonctionnalités et son utilisation.
+
+# [IV. Bibliographie]{.underline}
+
+[Auteur ?], 2023. Stable Diffusion. *Wikipedia* [en ligne]. [Consulté le 3 février 2023]. Disponible à l'adresse : <https://en.wikipedia.org/w/index.php?title=Stable_Diffusion&oldid=1136210503>
+
+AUTOMATIC1111, 2023. *Stable Diffusion web UI* [en ligne]. Python. 3 février 2023. [Consulté le 3 février 2023]. Disponible à l'adresse : <https://github.com/AUTOMATIC1111/stable-diffusion-webui>
+
+CREATIVEML OPEN RAIL-M, 2022. Stable Diffusion Online. [en ligne]. 2022. [Consulté le 3 février 2023]. Disponible à l'adresse : <https://stablediffusionweb.com/#faq>
+
+LYKON, 2023. DreamShaper \| Stable Diffusion Checkpoint \| Civitai. [en ligne]. 9 février 2023. [Consulté le 9 février 2023]. Disponible à l'adresse : <https://civitai.com/models/4384/dreamshaper>
